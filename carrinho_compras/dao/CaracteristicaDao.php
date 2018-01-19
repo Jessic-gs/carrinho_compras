@@ -1,0 +1,34 @@
+<?php 
+
+Class CaracteristicaDao{
+
+	public function produtosDaCategoria($id_cat){
+        $sql = "select id_produto, id_cat
+                from prod_cat
+                where id_cat = :id_cat";
+
+        $connection = ResourceManager::getConnection();
+        $prod_cat = array();
+        
+        try {
+            $connection->beginTransaction();                
+            $prepare = $connection->prepare( $sql);
+            $prepare->bindValue(":id_cat", $id_cat);
+            $prepare->execute();                
+                
+            while($linha = $prepare->fetch( PDO::FETCH_OBJ)) {
+                $item = array();
+                    $item['id_produto'] = $linha->id_produto;
+                    $item['id_cat'] = $linha->id_cat;
+                $prod_cat[] = $item;
+            }
+            $connection->commit();
+        } catch(Exception $ex){
+            $erro = "O CARRINHO não pode ser montado!";
+            throw new Exception( $erro);
+        }
+        $connection = null;
+        return $prod_cat;
+    }
+}
+?>
